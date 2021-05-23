@@ -16,10 +16,12 @@ namespace blogger_cs.Controllers
     public class AccountController : ControllerBase
     {
         private readonly AccountService _service;
+        private readonly BlogsService _blogsService;
 
-        public AccountController(AccountService service)
+        public AccountController(AccountService service, BlogsService blogsService)
         {
             _service = service;
+            _blogsService = blogsService;
         }
 
         [HttpGet]
@@ -37,6 +39,20 @@ namespace blogger_cs.Controllers
             }
         }
 
-        [Http]
+        [HttpGet("blogs")]
+        public async Task<ActionResult<IEnumerable<Blog>>> GetMyBlogs()
+        {
+            try
+            {
+                Account user = await HttpContext.GetUserInfoAsync<Account>();
+                IEnumerable<Blog> blogs = _blogsService.GetByCreatorId(user.Id);
+            }
+            catch (System.Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
+
+        }
     }
 }
